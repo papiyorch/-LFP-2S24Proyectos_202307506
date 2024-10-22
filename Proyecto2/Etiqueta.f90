@@ -125,6 +125,7 @@ subroutine etiquetaColorTexto(id, color_textoR, color_textoG, color_textoB)
 
 end subroutine etiquetaColorTexto
 
+
 subroutine etiquetaPos(id, posX, posY)
     character(len=*), intent(in) :: id
     character(len=*), intent(in) :: posX

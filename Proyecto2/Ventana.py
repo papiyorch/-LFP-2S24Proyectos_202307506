@@ -25,11 +25,12 @@ def ejecutar_fortran(contenido):
     if proceso.returncode !=0:
         print(f"Error: {stderr}")
     else:
-        actualizar_Tablas(stoudt)
+        actualizar_TablaT(stoudt)
+        actualizar_TablaE()
 
     #print(salida)
 
-def actualizar_Tablas(salida):
+def actualizar_TablaT(salida):
     tokens = salida.strip().split('\n')
     tablaTokens.delete(*tablaTokens.get_children())
 
@@ -38,12 +39,12 @@ def actualizar_Tablas(salida):
         if len(datos_token) == 4:
             tablaTokens.insert('', 'end', values=datos_token)
 
-    errores = salida.strip().split('\n')
+def actualizar_TablaE():
     tablaErrores.delete(*tablaErrores.get_children())
-
-    for error in errores:
-        datos_error = error.split(',')
-        if len(datos_token) == 5:
+    with open("./Proyecto2/errores.txt", "r") as file:
+     for error in file:
+        datos_error = error.strip().split(',')
+        if len(datos_error) == 5:
             tablaErrores.insert('','end',values=datos_error)
 
 #Diseño de ventana
@@ -85,7 +86,7 @@ for col in columnasT1:
     tablaTokens.column(col, width=120)
 tablaTokens.pack(fill="both", expand=True)
 
-columnasT2 = ("Lexema", "Tipo", "Fila", "Columna", "Descripcion")
+columnasT2 = ("Tipo", "Descripcion", "Token Esperado", "Fila", "Columna")
 tablaErrores = ttk.Treeview(tab2, columns=columnasT2, show='headings', height=5)
 for col in columnasT2:
     tablaErrores.heading(col, text=col)

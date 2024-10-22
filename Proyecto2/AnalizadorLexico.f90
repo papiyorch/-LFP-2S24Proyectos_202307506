@@ -2,6 +2,10 @@ program analizador_lexico
     use moduloToken
     use errormodulo
     use moduloEtiqueta
+    use moduloBoton
+    use moduloClave
+    use moduloContenedor
+    use moduloTexto
 
     implicit none
 
@@ -40,8 +44,22 @@ program analizador_lexico
     do while(puntero <= len)
         caracter = contenido(puntero:puntero)
         select case (estado)
+
         case(0)
-            if(caracter == ';' .or. caracter == '-' .or. caracter == '.' .or. caracter == '(' .or. caracter == ')' .or. caracter == ',' .or. caracter == '<' .or. caracter == '>' .or. caracter == '!')then
+
+             !Comentario linea
+            if(caracter == '/' .and. contenido(puntero+1:puntero+1) == '/')then
+                estado = 7
+                puntero = puntero + 2
+                columna = columna + 2
+
+            !comentario bloque
+            else if(caracter == '/' .and. contenido(puntero+1:puntero+1) == '*')then
+                estado = 8
+                puntero = puntero + 2
+                columna = columna + 2
+
+            else if(caracter == ';' .or. caracter == '-' .or. caracter == '.' .or. caracter == '(' .or. caracter == ')' .or. caracter == ',' .or. caracter == '<' .or. caracter == '>' .or. caracter == '!')then
             estado = 1
             columna = columna + 1
 
@@ -56,21 +74,25 @@ program analizador_lexico
                 columna = columna + 1
                 puntero = puntero + 1
                 estado = 4
-
+            
+                !Salto linea
             else if(ichar(caracter) ==10)then
                 columna = 0
                 fila = fila + 1
                 puntero = puntero + 1
 
+                !Tab
             elseif (ichar(caracter) == 9) then
                 columna = columna + 4
                 puntero = puntero + 1
 
+                !Espacio en blanco
             elseif (ichar(caracter) == 32) then
                 columna = columna + 1
                 puntero = puntero + 1  
             
             else
+                call agregar_errorLex('Lexico',caracter, 'Error Lexico', fila, columna)
                 columna = columna + 1
                 puntero = puntero + 1 
 
@@ -164,7 +186,7 @@ program analizador_lexico
             columna = columna + 1 
             puntero = puntero + 1
         else
-            call crearToken(tokenAuxiliar, 'tk_num', fila, columna)
+            call crearToken(tokenAuxiliar, 'tk_numero', fila, columna)
             tokenAuxiliar = ""
             estado = 0
         end if
@@ -179,6 +201,8 @@ program analizador_lexico
         else if(caracter == '"') then
             estado = 5
         else 
+            call agregar_errorLex('Lexico', tokenAuxiliar, 'Error Lexico', fila, columna)
+
             tokenAuxiliar = ""
             estado = 0
         end if
@@ -200,9 +224,41 @@ program analizador_lexico
 
         else if(caracter == '"') then
             estado = 5
-        else    
+        else 
+            call agregar_errorLex('Lexico', tokenAuxiliar, 'Error Lexico', fila, columna)
+   
             tokenAuxiliar = ""
             estado = 0
+        end if
+
+    case(7)
+        !Estado comentario linea
+        if(ichar(caracter)==10)then
+            estado = 0
+            columna = 0
+            fila = fila + 1
+
+        else
+            !ignorar caracteres dentro 
+            puntero = puntero + 1
+            columna = columna + 1
+        end if
+
+    case(8)
+        !Estado comentario bloque
+        if(caracter == '*' .and. contenido(puntero+1:puntero+1) == '/')then
+            estado = 0
+            puntero = puntero + 2
+            columna = columna + 2
+        else
+            !Ignora caracteres dentro
+            if(ichar(caracter) == 10)then
+                fila = fila + 1
+                columna = 0
+
+            end if
+            puntero = puntero + 1
+            columna = columna + 1
         end if
 
     end select
@@ -215,5 +271,11 @@ call imprimir_errores
 call imprimir_tokens
 
 call imprimir_etiquetas
+
+call archivoErrores
+
+contains
+
+
 
 end program analizador_lexico

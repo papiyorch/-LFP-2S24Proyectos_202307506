@@ -1,6 +1,11 @@
 module moduloToken
     use errormodulo
     use moduloEtiqueta
+    use moduloContenedor
+    use moduloBoton
+    use moduloClave
+    use moduloTexto
+
     implicit none
 
     type :: Token
@@ -48,25 +53,59 @@ subroutine parser()
    else
         do i = 1, size(arregloToken)
             if(arregloToken(i)%tipo == 'tk_etiqueta') then
-                if(arregloToken(i+1)%tipo == 'tk_id') then
+                if(arregloToken(i+1)%tipo == 'tk_id' .and. arregloToken(i+2)%tipo == 'tk_puntoycoma') then
+                    call agregarEtiqueta(arregloToken(i+1)%lexema)
                 else
-                    call agregar_error(arregloToken(i+1)%lexema, 'tk_id', arregloToken(i+1)%fila, arregloToken(i+1)%columna)
+                    call agregar_error('Sintatico', arregloToken(i+1)%lexema, 'tk_id', arregloToken(i+1)%fila, arregloToken(i+1)%columna)
+                end if
+            end if
+
+            if(arregloToken(i)%tipo == 'tk_contenedor')then
+                if(arregloToken(i+1)%tipo =='tk_id' .and. arregloToken(i+2)%tipo == 'tk_puntoycoma')then
+                    call agregarContenedor(arregloToken(i+1)%lexema)
+                else   
+                    call agregar_error('Sintatico', arregloToken(i+1)%lexema, 'tk_id', arregloToken(i+1)%fila, arregloToken(i+1)%columna)
+                end if
+            end if
+
+            if(arregloToken(i)%tipo == 'tk_boton')then
+                if(arregloToken(i+1)%tipo =='tk_id' .and. arregloToken(i+2)%tipo == 'tk_puntoycoma')then
+                    call agregarBoton(arregloToken(i+1)%lexema)
+                else   
+                    call agregar_error('Sintatico', arregloToken(i+1)%lexema, 'tk_id', arregloToken(i+1)%fila, arregloToken(i+1)%columna)
+                end if
+            end if
+
+            if(arregloToken(i)%tipo == 'tk_texto')then
+                if(arregloToken(i+1)%tipo =='tk_id' .and. arregloToken(i+2)%tipo == 'tk_puntoycoma')then
+                    call agregarTexto(arregloToken(i+1)%lexema)
+                else   
+                    call agregar_error('Sintatico', arregloToken(i+1)%lexema, 'tk_id', arregloToken(i+1)%fila, arregloToken(i+1)%columna)
+                end if
+            end if
+
+            if(arregloToken(i)%tipo == 'tk_clave')then
+                if(arregloToken(i+1)%tipo =='tk_id' .and. arregloToken(i+2)%tipo == 'tk_puntoycoma')then
+                    call agregarClave(arregloToken(i+1)%lexema)
+                else   
+                    call agregar_error('Sintatico', arregloToken(i+1)%lexema, 'tk_id', arregloToken(i+1)%fila, arregloToken(i+1)%columna)
                 end if
             end if
 
             if(arregloToken(i)%tipo =='tk_id' .and. arregloToken(i+1)%tipo == 'tk_punto') then
+
                 if(arregloToken(i+2)%tipo == 'tk_setAncho') then
                     if(arregloToken(i+3)%tipo .ne. 'tk_parentesisI') then
-                    call agregar_error(arregloToken(i+3)%lexema, 'tk_parentesisI', arregloToken(i+3)%fila, arregloToken(i+3)%columna)
+                    call agregar_error('Sintatico', arregloToken(i+3)%lexema, 'tk_parentesisI', arregloToken(i+3)%fila, arregloToken(i+3)%columna)
 
                     else if(arregloToken(i+4)%tipo .ne. 'tk_numero') then
-                        call agregar_error(arregloToken(i+4)%lexema, 'tk_numero', arregloToken(i+4)%fila, arregloToken(i+4)%columna)
+                        call agregar_error('Sintatico', arregloToken(i+4)%lexema, 'tk_numero', arregloToken(i+4)%fila, arregloToken(i+4)%columna)
 
                     elseif(arregloToken(i+5)%tipo .ne. 'tk_parentesisD') then
-                        call agregar_error(arregloToken(i+5)%lexema, 'tk_parentesisD', arregloToken(i+5)%fila, arregloToken(i+5)%columna)
+                        call agregar_error('Sintatico', arregloToken(i+5)%lexema, 'tk_parentesisD', arregloToken(i+5)%fila, arregloToken(i+5)%columna)
 
                     else if(arregloToken(i+6)%tipo .ne. 'tk_puntoycoma') then
-                        call agregar_error(arregloToken(i+6)%lexema, 'tk_puntoycoma', arregloToken(i+6)%fila, arregloToken(i+6)%columna)
+                        call agregar_error('Sintatico', arregloToken(i+6)%lexema, 'tk_puntoycoma', arregloToken(i+6)%fila, arregloToken(i+6)%columna)
                         
                     else
                         call etiquetaAncho(arregloToken(i)%lexema, arregloToken(i+4)%lexema)
@@ -76,16 +115,16 @@ subroutine parser()
 
                 if(arregloToken(i+2)%tipo == 'tk_setAlto')then
                     if(arregloToken(i+3)%tipo .ne. 'tk_parentesisI') then
-                        call agregar_error(arregloToken(i+3)%lexema, 'tk_parentesisI', arregloToken(i+3)%fila, arregloToken(i+3)%columna)
+                        call agregar_error('Sintatico', arregloToken(i+3)%lexema, 'tk_parentesisI', arregloToken(i+3)%fila, arregloToken(i+3)%columna)
 
                     else if(arregloToken(i+4)%tipo .ne. 'tk_numero') then
-                        call agregar_error(arregloToken(i+4)%lexema, 'tk_numero', arregloToken(i+4)%fila, arregloToken(i+4)%columna)
+                        call agregar_error('Sintatico', arregloToken(i+4)%lexema, 'tk_numero', arregloToken(i+4)%fila, arregloToken(i+4)%columna) 
 
                     elseif(arregloToken(i+5)%tipo .ne. 'tk_parentesisD') then
-                        call agregar_error(arregloToken(i+5)%lexema, 'tk_parentesisD', arregloToken(i+5)%fila, arregloToken(i+5)%columna)
+                        call agregar_error('Sintatico', arregloToken(i+5)%lexema, 'tk_parentesisD', arregloToken(i+5)%fila, arregloToken(i+5)%columna)
 
                     else if(arregloToken(i+6)%tipo .ne. 'tk_puntoycoma') then
-                        call agregar_error(arregloToken(i+6)%lexema, 'tk_puntoycoma', arregloToken(i+6)%fila, arregloToken(i+6)%columna)
+                        call agregar_error('Sintatico', arregloToken(i+6)%lexema, 'tk_puntoycoma', arregloToken(i+6)%fila, arregloToken(i+6)%columna)
                         
                     else
                         call etiquetaAlto(arregloToken(i)%lexema, arregloToken(i+4)%lexema)
@@ -95,16 +134,16 @@ subroutine parser()
 
                 if(arregloToken(i+2)%tipo == 'tk_setTexto')then
                     if(arregloToken(i+3)%tipo .ne. 'tk_parentesisI') then
-                        call agregar_error(arregloToken(i+3)%lexema, 'tk_parentesisI', arregloToken(i+3)%fila, arregloToken(i+3)%columna)
+                        call agregar_error('Sintatico', arregloToken(i+3)%lexema, 'tk_parentesisI', arregloToken(i+3)%fila, arregloToken(i+3)%columna)
 
-                    else if(arregloToken(i+4)%tipo .ne. 'tk_numero') then
-                        call agregar_error(arregloToken(i+4)%lexema, 'tk_numero', arregloToken(i+4)%fila, arregloToken(i+4)%columna)
+                    else if(arregloToken(i+4)%tipo .ne. 'tk_literal') then
+                        call agregar_error('Sintatico', arregloToken(i+4)%lexema, 'tk_literal', arregloToken(i+4)%fila, arregloToken(i+4)%columna)
 
                     elseif(arregloToken(i+5)%tipo .ne. 'tk_parentesisD') then
-                        call agregar_error(arregloToken(i+5)%lexema, 'tk_parentesisD', arregloToken(i+5)%fila, arregloToken(i+5)%columna)
+                        call agregar_error('Sintatico', arregloToken(i+5)%lexema, 'tk_parentesisD', arregloToken(i+5)%fila, arregloToken(i+5)%columna)
 
                     else if(arregloToken(i+6)%tipo .ne. 'tk_puntoycoma') then
-                        call agregar_error(arregloToken(i+6)%lexema, 'tk_puntoycoma', arregloToken(i+6)%fila, arregloToken(i+6)%columna)
+                        call agregar_error('Sintatico', arregloToken(i+6)%lexema, 'tk_puntoycoma', arregloToken(i+6)%fila, arregloToken(i+6)%columna)
                         
                     else
                         call etiquetaTexto(arregloToken(i)%lexema, arregloToken(i+4)%lexema)
@@ -114,28 +153,28 @@ subroutine parser()
 
                 if(arregloToken(i+2)%tipo == 'tk_setColorLetra')then
                     if(arregloToken(i+3)%tipo .ne. 'tk_parentesisI') then
-                        call agregar_error(arregloToken(i+3)%lexema, 'tk_parentesisI', arregloToken(i+3)%fila, arregloToken(i+3)%columna )
+                        call agregar_error('Sintatico', arregloToken(i+3)%lexema, 'tk_parentesisI', arregloToken(i+3)%fila, arregloToken(i+3)%columna )
 
                         elseif (arregloToken(i+4)%tipo .ne. 'tk_numero') then
-                            call agregar_error(arregloToken(i+4)%lexema, 'tk_numero', arregloToken(i+4)%fila, arregloToken(i+4)%columna )
+                            call agregar_error('Sintatico', arregloToken(i+4)%lexema, 'tk_numero', arregloToken(i+4)%fila, arregloToken(i+4)%columna )
                         
                         elseif (arregloToken(i+5)%tipo .ne. 'tk_coma') then
-                            call agregar_error(arregloToken(i+5)%lexema, 'tk_coma', arregloToken(i+5)%fila, arregloToken(i+5)%columna )
+                            call agregar_error('Sintatico', arregloToken(i+5)%lexema, 'tk_coma', arregloToken(i+5)%fila, arregloToken(i+5)%columna )
 
                         elseif (arregloToken(i+6)%tipo .ne. 'tk_numero') then
-                            call agregar_error(arregloToken(i+6)%lexema, 'tk_numero', arregloToken(i+6)%fila, arregloToken(i+6)%columna )
+                            call agregar_error('Sintatico', arregloToken(i+6)%lexema, 'tk_numero', arregloToken(i+6)%fila, arregloToken(i+6)%columna )
 
                         elseif (arregloToken(i+7)%tipo .ne. 'tk_coma') then
-                            call agregar_error(arregloToken(i+7)%lexema, 'tk_coma', arregloToken(i+7)%fila, arregloToken(i+7)%columna )
+                            call agregar_error('Sintatico', arregloToken(i+7)%lexema, 'tk_coma', arregloToken(i+7)%fila, arregloToken(i+7)%columna)
 
                         elseif (arregloToken(i+8)%tipo .ne. 'tk_numero') then
-                            call agregar_error(arregloToken(i+8)%lexema, 'tk_numero', arregloToken(i+8)%fila, arregloToken(i+8)%columna )
+                            call agregar_error('Sintatico', arregloToken(i+8)%lexema, 'tk_numero', arregloToken(i+8)%fila, arregloToken(i+8)%columna)
 
                         elseif (arregloToken(i+9)%tipo .ne. 'tk_parentesisD') then
-                            call agregar_error(arregloToken(i+9)%lexema, 'tk_parentesisD', arregloToken(i+9)%fila, arregloToken(i+9)%columna )
+                            call agregar_error('Sintatico', arregloToken(i+9)%lexema, 'tk_parentesisD', arregloToken(i+9)%fila, arregloToken(i+9)%columna)
 
                         elseif (arregloToken(i+10)%tipo .ne. 'tk_puntoycoma') then
-                            call agregar_error(arregloToken(i+10)%lexema, 'tk_puntoycoma', arregloToken(i+10)%fila, arregloToken(i+10)%columna )
+                            call agregar_error('Sintatico', arregloToken(i+10)%lexema, 'tk_puntoycoma', arregloToken(i+10)%fila, arregloToken(i+10)%columna)
                         
                         else
                             call etiquetaColorTexto(arregloToken(i)%lexema, arregloToken(i+4)%lexema, arregloToken(i+6)%lexema, arregloToken(i+8)%lexema )
@@ -143,32 +182,62 @@ subroutine parser()
                         end if
                     end if
 
-                    if(arregloToken(i+2)%tipo == 'tk_setPosicion') then
-                        if(arregloToken(i+3)%tipo .ne. 'tk_parentesisI')then
-                            call agregar_error(arregloToken(i+3)%lexema, 'tk_parentesisI', arregloToken(i+3)%fila, arregloToken(i+3)%columna )  
-                            
+                    if(arregloToken(i+2)%tipo == 'tk_setColorFondo')then
+                        if(arregloToken(i+3)%tipo .ne. 'tk_parentesisI') then
+                            call agregar_error('Sintatico', arregloToken(i+3)%lexema, 'tk_parentesisI', arregloToken(i+3)%fila, arregloToken(i+3)%columna )
+    
                             elseif (arregloToken(i+4)%tipo .ne. 'tk_numero') then
-                                call agregar_error(arregloToken(i+4)%lexema, 'tk_numero', arregloToken(i+4)%fila, arregloToken(i+4)%columna )
+                                call agregar_error('Sintatico', arregloToken(i+4)%lexema, 'tk_numero', arregloToken(i+4)%fila, arregloToken(i+4)%columna )
                             
                             elseif (arregloToken(i+5)%tipo .ne. 'tk_coma') then
-                                call agregar_error(arregloToken(i+5)%lexema, 'tk_coma', arregloToken(i+5)%fila, arregloToken(i+5)%columna )
+                                call agregar_error('Sintatico', arregloToken(i+5)%lexema, 'tk_coma', arregloToken(i+5)%fila, arregloToken(i+5)%columna )
     
                             elseif (arregloToken(i+6)%tipo .ne. 'tk_numero') then
-                                call agregar_error(arregloToken(i+6)%lexema, 'tk_numero', arregloToken(i+6)%fila, arregloToken(i+6)%columna )
+                                call agregar_error('Sintatico', arregloToken(i+6)%lexema, 'tk_numero', arregloToken(i+6)%fila, arregloToken(i+6)%columna )
+    
+                            elseif (arregloToken(i+7)%tipo .ne. 'tk_coma') then
+                                call agregar_error('Sintatico', arregloToken(i+7)%lexema, 'tk_coma', arregloToken(i+7)%fila, arregloToken(i+7)%columna)
+    
+                            elseif (arregloToken(i+8)%tipo .ne. 'tk_numero') then
+                                call agregar_error('Sintatico', arregloToken(i+8)%lexema, 'tk_numero', arregloToken(i+8)%fila, arregloToken(i+8)%columna)
+    
+                            elseif (arregloToken(i+9)%tipo .ne. 'tk_parentesisD') then
+                                call agregar_error('Sintatico', arregloToken(i+9)%lexema, 'tk_parentesisD', arregloToken(i+9)%fila, arregloToken(i+9)%columna)
+    
+                            elseif (arregloToken(i+10)%tipo .ne. 'tk_puntoycoma') then
+                                call agregar_error('Sintatico', arregloToken(i+10)%lexema, 'tk_puntoycoma', arregloToken(i+10)%fila, arregloToken(i+10)%columna)
+                            
+                            else
+                                call contenedorColorFondo(arregloToken(i)%lexema, arregloToken(i+4)%lexema, arregloToken(i+6)%lexema, arregloToken(i+8)%lexema )
+                                
+                            end if
+                        end if
+
+                    if(arregloToken(i+2)%tipo == 'tk_setPosicion') then
+                        if(arregloToken(i+3)%tipo .ne. 'tk_parentesisI')then
+                            call agregar_error('Sintatico', arregloToken(i+3)%lexema, 'tk_parentesisI', arregloToken(i+3)%fila, arregloToken(i+3)%columna )  
+                            
+                            elseif (arregloToken(i+4)%tipo .ne. 'tk_numero') then
+                                call agregar_error('Sintatico', arregloToken(i+4)%lexema, 'tk_numero', arregloToken(i+4)%fila, arregloToken(i+4)%columna )
+                            
+                            elseif (arregloToken(i+5)%tipo .ne. 'tk_coma') then
+                                call agregar_error('Sintatico', arregloToken(i+5)%lexema, 'tk_coma', arregloToken(i+5)%fila, arregloToken(i+5)%columna )
+    
+                            elseif (arregloToken(i+6)%tipo .ne. 'tk_numero') then
+                                call agregar_error('Sintatico', arregloToken(i+6)%lexema, 'tk_numero', arregloToken(i+6)%fila, arregloToken(i+6)%columna )
     
                                 elseif (arregloToken(i+7)%tipo .ne. 'tk_parentesisD') then
-                                    call agregar_error(arregloToken(i+7)%lexema, 'tk_parentesisD', arregloToken(i+7)%fila, arregloToken(i+7)%columna )
+                                    call agregar_error('Sintatico', arregloToken(i+7)%lexema, 'tk_parentesisD', arregloToken(i+7)%fila, arregloToken(i+7)%columna )
         
                                 elseif (arregloToken(i+8)%tipo .ne. 'tk_puntoycoma') then
-                                    call agregar_error(arregloToken(i+8)%lexema, 'tk_puntoycoma', arregloToken(i+8)%fila, arregloToken(i+8)%columna )
+                                    call agregar_error('Sintatico', arregloToken(i+8)%lexema, 'tk_puntoycoma', arregloToken(i+8)%fila, arregloToken(i+8)%columna )
                                 
                                 else
                                     call etiquetaPos(arregloToken(i)%lexema, arregloToken(i+4)%lexema, arregloToken(i+6)%lexema )
                                     
-                            end if
                         end if
-
-                    end if 
+                    end if
+                 end if 
         end do
         
    end if
