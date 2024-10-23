@@ -5,7 +5,10 @@ module moduloToken
     use moduloBoton
     use moduloClave
     use moduloTexto
-
+    use moduloAreaT
+    use moduloCheck
+    use moduloRadioB
+    
     implicit none
 
     type :: Token
@@ -47,11 +50,13 @@ end subroutine crearToken
 subroutine parser()
 
     integer :: i
+    logical :: estado
 
    if (.not. allocated(arregloToken)) then
         print *, "No hay tokens"
    else
         do i = 1, size(arregloToken)
+
             if(arregloToken(i)%tipo == 'tk_etiqueta') then
                 if(arregloToken(i+1)%tipo == 'tk_id' .and. arregloToken(i+2)%tipo == 'tk_puntoycoma') then
                     call agregarEtiqueta(arregloToken(i+1)%lexema)
@@ -87,6 +92,30 @@ subroutine parser()
             if(arregloToken(i)%tipo == 'tk_clave')then
                 if(arregloToken(i+1)%tipo =='tk_id' .and. arregloToken(i+2)%tipo == 'tk_puntoycoma')then
                     call agregarClave(arregloToken(i+1)%lexema)
+                else   
+                    call agregar_error('Sintatico', arregloToken(i+1)%lexema, 'tk_id', arregloToken(i+1)%fila, arregloToken(i+1)%columna)
+                end if
+            end if
+
+            if(arregloToken(i)%tipo == 'tk_area')then
+                if(arregloToken(i+1)%tipo =='tk_id' .and. arregloToken(i+2)%tipo == 'tk_puntoycoma')then
+                    call agregarAreaT(arregloToken(i+1)%lexema)
+                else   
+                    call agregar_error('Sintatico', arregloToken(i+1)%lexema, 'tk_id', arregloToken(i+1)%fila, arregloToken(i+1)%columna)
+                end if
+            end if
+
+            if(arregloToken(i)%tipo == 'tk_check')then
+                if(arregloToken(i+1)%tipo =='tk_id' .and. arregloToken(i+2)%tipo == 'tk_puntoycoma')then
+                    call agregarCheck(arregloToken(i+1)%lexema)
+                else   
+                    call agregar_error('Sintatico', arregloToken(i+1)%lexema, 'tk_id', arregloToken(i+1)%fila, arregloToken(i+1)%columna)
+                end if
+            end if
+
+            if(arregloToken(i)%tipo == 'tk_radioB')then
+                if(arregloToken(i+1)%tipo =='tk_id' .and. arregloToken(i+2)%tipo == 'tk_puntoycoma')then
+                    call agregarRadio(arregloToken(i+1)%lexema)
                 else   
                     call agregar_error('Sintatico', arregloToken(i+1)%lexema, 'tk_id', arregloToken(i+1)%fila, arregloToken(i+1)%columna)
                 end if
@@ -208,7 +237,7 @@ subroutine parser()
                                 call agregar_error('Sintatico', arregloToken(i+10)%lexema, 'tk_puntoycoma', arregloToken(i+10)%fila, arregloToken(i+10)%columna)
                             
                             else
-                                call contenedorColorFondo(arregloToken(i)%lexema, arregloToken(i+4)%lexema, arregloToken(i+6)%lexema, arregloToken(i+8)%lexema )
+                                call contenedorColorFondo   (arregloToken(i)%lexema, arregloToken(i+4)%lexema, arregloToken(i+6)%lexema, arregloToken(i+8)%lexema )
                                 
                             end if
                         end if
@@ -237,7 +266,35 @@ subroutine parser()
                                     
                         end if
                     end if
-                 end if 
+
+                    if (arregloToken(i+2)%tipo == 'tk_setMarcada') then
+                        if (arregloToken(i+3)%tipo .ne. 'tk_parentesisI') then
+                            call agregar_error('Sintatico', arregloToken(i+3)%lexema, 'tk_parentesisI', arregloToken(i+3)%fila, arregloToken(i+3)%columna)
+                    
+                        elseif (.not. (arregloToken(i+4)%lexema == 'true' .or. arregloToken(i+4)%lexema == 'false')) then
+                            call agregar_error('Sintatico', arregloToken(i+4)%lexema, 'booleano (true o false)', arregloToken(i+4)%fila, arregloToken(i+4)%columna)
+                    
+                        elseif (arregloToken(i+5)%tipo .ne. 'tk_parentesisD') then
+                            call agregar_error('Sintatico', arregloToken(i+5)%lexema, 'tk_parentesisD', arregloToken(i+5)%fila, arregloToken(i+5)%columna)
+                    
+                        elseif (arregloToken(i+6)%tipo .ne. 'tk_puntoycoma') then
+                            call agregar_error('Sintatico', arregloToken(i+6)%lexema, 'tk_puntoycoma', arregloToken(i+6)%fila, arregloToken(i+6)%columna)
+                    
+                        else
+                            ! Convertir lexema a LOGICAL
+                            
+                            if (trim(arregloToken(i+4)%lexema) == 'true') then
+                                estado = .true.
+                            else
+                                estado = .false.
+                            end if
+                    
+                            call marcarCheck(arregloToken(i)%lexema, estado)
+                            call marcarRadio(arregloToken(i)%lexema, estado)
+                        end if
+                    end if
+
+            end if 
         end do
         
    end if

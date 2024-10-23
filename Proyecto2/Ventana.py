@@ -47,6 +47,23 @@ def actualizar_TablaE():
         if len(datos_error) == 5:
             tablaErrores.insert('','end',values=datos_error)
 
+def informacion():
+    messagebox.showinfo("Acerca de", "Proyecto 2 \n Desarrollado por: Jorge Ivan Samayoa Sian \n Carnet: 202307506")
+
+def guardar_archivo():
+    archivo = ruta.get()
+    if archivo:
+        with open(archivo,'w')as file:
+            file.write(texto.get(1.0, tk.END))
+    ruta.set(archivo)
+
+def guardar_como():
+    archivo = filedialog.asksaveasfilename(defaultextension=".LFP", filetypes=[("Archivos LFP","*.LFP")])
+    if archivo:
+        with open(archivo, 'w') as file:
+            file.write(texto.get(1.0, tk.END))
+        ruta.set(archivo)
+
 #Diseño de ventana
 ventana = tk.Tk()
 ventana.title("Analizador")
@@ -59,10 +76,14 @@ ventana.config(menu=menu)
 archivo_menu = tk.Menu(menu, tearoff=0)
 menu.add_cascade(label="Archivo", menu=archivo_menu)
 archivo_menu.add_command(label="Abrir", command=abrir_archivo)
-archivo_menu.add_command(label="Guardar", command="guardar_archivo")
-archivo_menu.add_command(label="Guardar como", command="guardar_como")
+archivo_menu.add_command(label="Guardar", command=guardar_archivo)
+archivo_menu.add_command(label="Guardar como", command=guardar_como)
 archivo_menu.add_separator()
 archivo_menu.add_command(label="Salir", command=ventana.quit)
+
+acercaDe = tk.Menu(menu, tearoff=0)
+menu.add_cascade(label="Acerca de", menu=acercaDe)
+acercaDe.add_command(label="Acerda de...", command=informacion)
 
 texto = tk.Text(ventana, wrap='word', height=20, width=100)
 texto.place(x=50, y=40)
@@ -93,31 +114,6 @@ for col in columnasT2:
     tablaErrores.column(col, width=100)
 tablaErrores.pack(fill="both", expand=True)
 
-#Diseño de tabla para tokens y errores
-#frame_tabla = tk.Frame(ventana)
-#frame_tabla.place(x=80, y=450, relwidth=0.9, relheight=0.4)
-
-#scroll_tablaX = tk.Scrollbar(frame_tabla, orient=tk.HORIZONTAL)
-#scroll_tablaX.pack(side=tk.BOTTOM, fill=tk.X)
-#scroll_tablaY = tk.Scrollbar(frame_tabla, orient=tk.HORIZONTAL)
-#scroll_tablaY.pack(side=tk.RIGHT, fill=tk.Y)
-
-#tablaTokens =ttk.Treeview(frame_tabla, columns=("Lexema", "Tipo", "Fila", "Columna"), show="headings", height=5,
-#                          xscrollcommand=scroll_tablaX.set, yscrollcommand=scroll_tablaY.set)
-#tablaTokens.pack(fill=tk.BOTH, expand=True)
-
-#scroll_tablaX.config(command=tablaTokens.xview)
-#scroll_tablaY.config(command=tablaTokens.yview)
-
-#tablaTokens.heading("Lexema", text="Lexema")
-#tablaTokens.heading("Tipo", text="Tipo")
-#tablaTokens.heading("Fila", text="Fila")
-#tablaTokens.heading("Columna", text="Columna")
-
-#tablaTokens.column("Lexema", width=200)
-#tablaTokens.column("Tipo", width=120)
-#tablaTokens.column("Fila", width=120)
-#tablaTokens.column("Columna", width=120)
 
 
 ventana.mainloop()

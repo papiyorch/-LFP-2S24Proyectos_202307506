@@ -76,4 +76,67 @@ module moduloTexto
     
     end subroutine textoPos
 
+    subroutine textos_html()
+        implicit none
+        integer :: i, unidad, ios
+        character(len=1000) :: html_line
+    
+        unidad = 30
+        open(unit=unidad, file='./Proyecto2/textos.html', status='replace', action='write', iostat=ios)
+    
+        if (ios /= 0) then
+            print *, 'Error al abrir el archivo HTML'
+            stop
+        end if
+    
+        if (.not. allocated(arregloTexto)) then
+            print *, "No hay etiquetas"
+        else
+            do i = 1, size(arregloTexto)
+                html_line = '<input type="text" id="' // trim(arregloTexto(i)%id) // '" value="'// trim(arregloTexto(i)%texto) // '"/>' 
+                write(unidad, '(A)') trim(html_line)
+            end do 
+        end if
+    
+        close(unidad)
+    end subroutine textos_html
+
+    subroutine textos_css()
+        integer :: i, unidad, ios
+        character(len=1000) :: css_line
+        
+        unidad = 31
+        open(unit=unidad, file='./Proyecto2/estilos.css', status='old', action='write', position='append', iostat=ios)
+    
+        if (ios /= 0) then
+            print *, 'Error al abrir el archivo CSS'
+            stop
+        end if
+    
+        if (.not. allocated(arregloTexto)) then
+            print *, "No hay textos"
+        else
+            do i = 1, size(arregloTexto)
+                css_line = '#' // trim(arregloTexto(i)%id) // ' {'
+                write(unidad, '(A)') trim(css_line)
+    
+                ! Posición
+                if (trim(arregloTexto(i)%posX) /= "" .and. trim(arregloTexto(i)%posY) /= "") then
+                    css_line = '    position: absolute;'
+                    write(unidad, '(A)') trim(css_line)
+                    css_line = '    left: ' // trim(arregloTexto(i)%posX) // 'px;'
+                    write(unidad, '(A)') trim(css_line)
+                    css_line = '    top: ' // trim(arregloTexto(i)%posY) // 'px;'
+                    write(unidad, '(A)') trim(css_line)
+                end if
+                
+                css_line = '}'
+                write(unidad, '(A)') trim(css_line)
+        end do
+        end if
+    
+        close(unidad)
+        
+    end subroutine textos_css
+
 end module moduloTexto

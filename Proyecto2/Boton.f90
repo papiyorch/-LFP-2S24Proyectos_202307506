@@ -1,7 +1,7 @@
 module moduloBoton
     implicit none
 
-    type Boton
+    type :: Boton
     character(len = 50) :: id
     character(len = 50) :: tipo
     character(len = 150) :: texto
@@ -76,5 +76,67 @@ contains
         end if
     
     end subroutine botonPos
+
+    subroutine botones_html()
+        implicit none
+        integer :: i, unidad, ios
+        character(len=1000) :: html_line
+    
+        unidad = 30
+        open(unit=unidad, file='./Proyecto2/botones.html', status='replace', action='write', iostat=ios)
+    
+        if (ios /= 0) then
+            print *, 'Error al abrir el archivo HTML'
+            stop
+        end if
+    
+        if (.not. ALLOCATED(arregloBoton)) then
+            print *, "No hay botones"
+        else
+            DO i = 1, size(arregloBoton)
+                html_line = '<input type="submit" id="' // trim(arregloBoton(i)%id) // '" value="' // trim(arregloBoton(i)%texto) // '"/>' 
+                write(unidad, '(A)') trim(html_line)
+            END DO
+        end if
+    
+        close(unidad)
+    end subroutine botones_html
+
+    subroutine botones_css()
+
+        integer :: i, unidad, ios
+        character(len=1000) :: css_line
+    
+        unidad = 31
+            open(unit=unidad, file='./Proyecto2/estilos.css', status='old', action='write', position='append', iostat=ios)
+    
+            if (ios /= 0) then
+                print *, 'Error al abrir el archivo CSS'
+                stop
+            end if
+    
+            if(.not. allocated(arregloBoton))then
+                print *, "No hay botones"
+            else
+                do i = 1, size(arregloBoton)
+                    css_line ='#' // trim(arregloBoton(i)%id) // '{'
+                    write(unidad, '(A)')trim(css_line)
+    
+                    ! Posición
+                    if (trim(arregloBoton(i)%posX) /= "" .and. trim(arregloBoton(i)%posY) /= "") then
+                        css_line = '    position: absolute;'
+                        write(unidad, '(A)') trim(css_line)
+                        css_line = '    left: ' // trim(arregloBoton(i)%posX) // 'px;'
+                        write(unidad, '(A)') trim(css_line)
+                        css_line = '    top: ' // trim(arregloBoton(i)%posY) // 'px;'
+                        write(unidad, '(A)') trim(css_line)
+                    end if
+    
+                css_line = '}'
+                write(unidad, '(A)') trim(css_line)
+                end do
+            end if
+        
+    end subroutine botones_css
 
 end module moduloBoton

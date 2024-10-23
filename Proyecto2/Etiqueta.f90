@@ -189,4 +189,89 @@ subroutine imprimir_etiquetas()
 
     end subroutine imprimir_etiquetas
 
+    subroutine etiquetas_html()
+        implicit none
+        integer :: i, unidad, ios
+        character(len=1000) :: html_line
+    
+        unidad = 30
+        open(unit=unidad, file='./Proyecto2/etiquetas.html', status='replace', action='write', iostat=ios)
+    
+        if (ios /= 0) then
+            print *, 'Error al abrir el archivo HTML'
+            stop
+        end if
+    
+        if (.not. allocated(arregloEtiqueta)) then
+            print *, "No hay etiquetas"
+        else
+            do i = 1, size(arregloEtiqueta)
+                html_line = '<label id="' // trim(arregloEtiqueta(i)%id) // '">' // &
+                            trim(arregloEtiqueta(i)%texto) // '</label>'
+                write(unidad, '(A)') trim(html_line)
+            end do 
+        end if
+
+        close(unidad)
+    end subroutine etiquetas_html
+
+    subroutine etiquetas_css()
+
+        integer :: i, unidad, ios
+        character(len=1000) :: css_line
+    
+        unidad = 31
+            open(unit=unidad, file='./Proyecto2/estilos.css', status='replace', action='write', iostat=ios)
+    
+            if (ios /= 0) then
+                print *, 'Error al abrir el archivo CSS'
+                stop
+            end if
+    
+            if(.not. allocated(arregloEtiqueta))then
+                print *, "No hay etiquetas"
+            else
+                do i = 1, size(arregloEtiqueta)
+                    css_line ='#' // trim(arregloEtiqueta(i)%id) // '{'
+                    write(unidad, '(A)')trim(css_line)
+    
+                    ! Posición
+                    if (trim(arregloEtiqueta(i)%posX) /= "" .and. trim(arregloEtiqueta(i)%posY) /= "") then
+                        css_line = '    position: absolute;'
+                        write(unidad, '(A)') trim(css_line)
+                        css_line = '    left: ' // trim(arregloEtiqueta(i)%posX) // 'px;'
+                        write(unidad, '(A)') trim(css_line)
+                        css_line = '    top: ' // trim(arregloEtiqueta(i)%posY) // 'px;'
+                        write(unidad, '(A)') trim(css_line)
+                    end if
+    
+                    !Ancho
+                    if (trim(arregloEtiqueta(i)%ancho) /= "") then
+                        css_line = '    width: ' // trim(arregloEtiqueta(i)%ancho) // 'px;'
+                        write(unidad, '(A)') trim(css_line)
+                    end if
+    
+                    ! Alto
+                    if (trim(arregloEtiqueta(i)%alto) /= "") then
+                        css_line = '    height: ' // trim(arregloEtiqueta(i)%alto) // 'px;'
+                        write(unidad, '(A)') trim(css_line)
+                    end if
+    
+                     ! Color de letra
+                if (trim(arregloEtiqueta(i)%color_textoR) /= "" .and. &
+                    trim(arregloEtiqueta(i)%color_textoG) /= "" .and. &
+                    trim(arregloEtiqueta(i)%color_textoB) /= "") then
+                    css_line = '    color: rgb(' // trim(arregloEtiqueta(i)%color_textoR) // ',' // &
+                           trim(arregloEtiqueta(i)%color_textoG) // ',' // &
+                           trim(arregloEtiqueta(i)%color_textoB) // ');'
+                    write(unidad, '(A)') trim(css_line)
+                end if
+    
+                css_line = '}'
+                write(unidad, '(A)') trim(css_line)
+                end do
+            end if
+        
+    end subroutine etiquetas_css
+
 end module moduloEtiqueta
